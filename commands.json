@@ -1,8 +1,0 @@
-{
-    "start web server": "npm start",
-    "list directory": "ls -l",
-    "create directory": "mkdir new_folder",
-    "remove file": "rm file.txt",
-    "check status": "git status",
-    "Display a greeting message": "echo Hello, FastCmd!"
-}
