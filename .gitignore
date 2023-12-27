@@ -1,0 +1,5 @@
+# .gitignore content
+build/
+fastcmd_venv/
+openai.env
+fastcmd-commands.json
