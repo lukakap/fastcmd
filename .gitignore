@@ -3,3 +3,7 @@ build/
 fastcmd_venv/
 openai.env
 fastcmd-commands.json
+
+__pycache__
+.pytest_cache
+venv

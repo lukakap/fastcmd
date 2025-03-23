@@ -1,1 +1,0 @@
-test command  "Display a greeting message": "echo Hello, FastCmd!" and "Show a welcome text"
