@@ -7,3 +7,4 @@ fastcmd-commands.json
 __pycache__
 .pytest_cache
 venv
+test-api-key
