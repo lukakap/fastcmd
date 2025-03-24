@@ -1,3 +1,4 @@
+import os
 from cli import fastcmd_print
 
 def handle_add(args, context):
@@ -6,13 +7,10 @@ def handle_add(args, context):
 
 def handle_key(args, context):
     if args.add:
-        # context["openai_key"] = args.add
-        # os.environ["OPENAI_API_KEY"] = args.add
-        # HANLDE ADDING OPENAI_KEY ADDING / OR OTHER KEY
+        os.environ["OPENAI_API_KEY"] = args.add
         fastcmd_print("🔑 OpenAI key set successfully.")
     elif args.see:
-        # key = context.get("openai_key")
-        key = "testkey"
+        key = os.environ.get("OPENAI_API_KEY", None)
         fastcmd_print(f"🔑 Your OpenAI key: {key}" if key else "⚠️ OpenAI key not set.")
 
 def handle_run(args, context):
