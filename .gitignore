@@ -8,3 +8,4 @@ __pycache__
 .pytest_cache
 venv
 test-api-key
+your_cli_tool
