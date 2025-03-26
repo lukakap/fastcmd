@@ -5,13 +5,22 @@ import numpy as np
 from typing import List
 import os
 
+# This will be used to override the database path during testing
+# If TEST_DB_PATH is set, it will be used instead of DEFAULT_DB_PATH
+TEST_DB_PATH = None
+
 DEFAULT_DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "commands.db")
+
+def get_db_path():
+    """Returns the appropriate database path based on whether we're in test mode or not."""
+    return TEST_DB_PATH if TEST_DB_PATH else DEFAULT_DB_PATH
 
 # serialize embedding to bytes
 def serialize(vector: List[float]) -> bytes:
     return struct.pack("%sf" % len(vector), *vector)
 
-def init_db(db_path=DEFAULT_DB_PATH):
+def init_db(db_path=None):
+    db_path = db_path or get_db_path()
     conn = sqlite3.connect(db_path)
     conn.enable_load_extension(True)
     sqlite_vec.load(conn)
@@ -34,7 +43,8 @@ def init_db(db_path=DEFAULT_DB_PATH):
     conn.commit()
     conn.close()
 
-def add_entry(embedding: List[float], command: str, description: str, db_path=DEFAULT_DB_PATH):
+def add_entry(embedding: List[float], command: str, description: str, db_path=None):
+    db_path = db_path or get_db_path()
     conn = sqlite3.connect(db_path)
     conn.enable_load_extension(True)
     sqlite_vec.load(conn)
@@ -54,7 +64,8 @@ def add_entry(embedding: List[float], command: str, description: str, db_path=DE
     conn.commit()
     conn.close()
 
-def fetch_similar(user_embedding: List[float], top_k: int = 3, db_path=DEFAULT_DB_PATH):
+def fetch_similar(user_embedding: List[float], top_k: int = 3, db_path=None):
+    db_path = db_path or get_db_path()
     conn = sqlite3.connect(db_path)
     conn.enable_load_extension(True)
     sqlite_vec.load(conn)
