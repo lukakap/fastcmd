@@ -9,3 +9,5 @@ __pycache__
 venv
 test-api-key
 your_cli_tool
+fastcmd.egg-info
+venv-dev

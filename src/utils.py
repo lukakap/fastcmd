@@ -73,12 +73,15 @@ def check_if_api_key_has_changed(args: Namespace):
         save_api_key(args.set_api_key)
         os.environ['OPENAI_API_KEY'] = args.set_api_key
 
-def fastcmd_print(value: str) -> None:
-    print(f"fastcmd> {value}")
+def fastcmd_print(value: str, with_front_text: bool = True) -> None:
+    if with_front_text:
+        print(f"fastcmd> {value}")
+    else:
+        print(f"         {value}")
 
 def print_instructions():                                                                                    
     fastcmd_print("Welcome to FASTCMD! Available commands:")                                                 
-    fastcmd_print("  add -c '<command>' -d '<description>'  : Add a new command with description")           
-    fastcmd_print("  search -d '<description>'             : Search for a command by description")           
-    fastcmd_print("  exit/quit                             : Exit the application")                          
-    fastcmd_print("")
+    fastcmd_print("  add -c '<command>' -d '<description>'  : Add a new command with description", with_front_text=False)           
+    fastcmd_print("  search -d '<description>'             : Search for a command by description", with_front_text=False)           
+    fastcmd_print("  exit/quit                             : Exit the application", with_front_text=False)                          
+    fastcmd_print("", with_front_text=False)

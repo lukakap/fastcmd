@@ -1,7 +1,6 @@
 import sqlite3
 import sqlite_vec
 import struct
-import numpy as np
 from typing import List
 import os
 
@@ -9,7 +8,7 @@ import os
 # If TEST_DB_PATH is set, it will be used instead of DEFAULT_DB_PATH
 TEST_DB_PATH = None
 
-DEFAULT_DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "commands.db")
+DEFAULT_DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "commands.db")
 
 def get_db_path():
     """Returns the appropriate database path based on whether we're in test mode or not."""

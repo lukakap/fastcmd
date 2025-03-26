@@ -20,7 +20,7 @@ def main():
             continue
 
         func_command_runner = COMMAND_FACTORY[args.command]
-        func_command_runner(args=args, context={})
+        func_command_runner(args=args)
 
         
 main()

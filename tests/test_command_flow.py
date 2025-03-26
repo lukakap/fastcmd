@@ -46,7 +46,7 @@ class TestCommandFlow:
         
         with patch('src.commands.calculate_embedding', return_value=mock_embedding1):
             with patch('src.commands.fastcmd_print') as mock_print:
-                result_add = handle_add(add_args, {})
+                result_add = handle_add(add_args)
         
         # Verify command was added successfully
         assert result_add is True
@@ -65,7 +65,7 @@ class TestCommandFlow:
             with patch('src.commands.fastcmd_print') as mock_print:
                 with patch('src.commands.get_user_input', return_value="1"):  # Select the first result
                     with patch('subprocess.run', return_value=mock_process) as mock_run:
-                        result_search = handle_search(search_args, {})
+                        result_search = handle_search(search_args)
         
         # Verify search and execution were successful
         assert result_search is True

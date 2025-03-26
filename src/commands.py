@@ -1,17 +1,14 @@
-import os
 import subprocess
-from typing import Dict, Any, List
 from src.utils import fastcmd_print, get_user_input
 from src.embeddings import calculate_embedding
 from src.vector_database import init_db, add_entry, fetch_similar
 
-def handle_add(args, context):
+def handle_add(args):
     """
     Handle adding a new command to the database.
     
     Args:
         args: Command line arguments containing description and command to run
-        context: Additional context (not used currently)
     """
     try:
         # Initialize database if it doesn't exist
@@ -34,29 +31,26 @@ def handle_add(args, context):
         fastcmd_print(f"❌ Error adding command: {str(e)}")
         return False
 
-def handle_search(args, context):
+def handle_search(args):
     """
     Handle searching for commands by description.
     
     Args:
         args: Command line arguments containing description to search for
-        context: Additional context (not used currently)
     
     Returns:
         bool: True if command found and processed, False otherwise
     """
     try:
-        # Calculate embedding for the query description
         query_embedding = calculate_embedding(args.description)
         
         # Find similar commands (default top_k=3)
-        results = fetch_similar(query_embedding)
+        results = fetch_similar(query_embedding, top_k=1)
         
         if not results:
             fastcmd_print("❌ No matching commands found.")
             return False
         
-        # Display results to user
         fastcmd_print(f"Found {len(results)} matching commands:")
         for i, result in enumerate(results):
             distance_percent = int((1 - result["distance"]) * 100)

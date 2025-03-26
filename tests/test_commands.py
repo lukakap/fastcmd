@@ -37,7 +37,7 @@ class TestAddCommand:
         # Act
         with patch('src.commands.calculate_embedding', return_value=mock_embedding) as mock_calc_embedding:
             with patch('src.commands.fastcmd_print') as mock_print:
-                result = handle_add(args, {})
+                result = handle_add(args)
         
         # Assert
         mock_calc_embedding.assert_called_once_with("List all files")
@@ -51,7 +51,7 @@ class TestAddCommand:
         # Act
         with patch('src.commands.calculate_embedding', side_effect=Exception("Test error")) as mock_calc_embedding:
             with patch('src.commands.fastcmd_print') as mock_print:
-                result = handle_add(args, {})
+                result = handle_add(args)
         
         # Assert
         mock_calc_embedding.assert_called_once()
@@ -91,11 +91,11 @@ class TestSearchCommand:
         with patch('src.commands.calculate_embedding', return_value=mock_embedding) as mock_calc_embedding:
             with patch('src.commands.fetch_similar', return_value=[]) as mock_fetch:
                 with patch('src.commands.fastcmd_print') as mock_print:
-                    result = handle_search(args, {})
+                    result = handle_search(args)
         
         # Assert
         mock_calc_embedding.assert_called_once_with("Find non-existent command")
-        mock_fetch.assert_called_once_with(mock_embedding)
+        mock_fetch.assert_called_once_with(mock_embedding, top_k=1)
         assert "No matching commands found" in mock_print.call_args[0][0]
         assert result is False
     
@@ -112,11 +112,11 @@ class TestSearchCommand:
             with patch('src.commands.fetch_similar', return_value=mock_results) as mock_fetch:
                 with patch('src.commands.fastcmd_print') as mock_print:
                     with patch('src.commands.get_user_input', return_value="") as mock_input:
-                        result = handle_search(args, {})
+                        result = handle_search(args)
         
         # Assert
         mock_calc_embedding.assert_called_once()
-        mock_fetch.assert_called_once_with(mock_embedding)
+        mock_fetch.assert_called_once_with(mock_embedding, top_k=1)
         assert mock_print.call_count >= 3  # Multiple print calls
         assert "Operation cancelled" in mock_print.call_args[0][0]
         assert result is False
@@ -140,7 +140,7 @@ class TestSearchCommand:
                 with patch('src.commands.fastcmd_print'):
                     with patch('src.commands.get_user_input', return_value="1"):
                         with patch('subprocess.run', return_value=mock_process) as mock_run:
-                            result = handle_search(args, {})
+                            result = handle_search(args)
         
         # Assert
         mock_run.assert_called_once_with(
@@ -170,7 +170,7 @@ class TestSearchCommand:
                 with patch('src.commands.fastcmd_print') as mock_print:
                     with patch('src.commands.get_user_input', return_value="1"):
                         with patch('subprocess.run', return_value=mock_process) as mock_run:
-                            result = handle_search(args, {})
+                            result = handle_search(args)
         
         # Assert
         assert "Command failed with error" in mock_print.call_args[0][0]

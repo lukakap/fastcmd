@@ -30,27 +30,3 @@ def calculate_embedding(description: str) -> list:
     embedding = response.data[0].embedding
     
     return embedding
-
-def similarity_score(embedding1: list, embedding2: list) -> float:
-    """
-    Calculate cosine similarity between two embedding vectors.
-    
-    Args:
-        embedding1 (list): First embedding vector
-        embedding2 (list): Second embedding vector
-        
-    Returns:
-        float: Cosine similarity score (0-1)
-    """
-    import numpy as np
-    
-    # Convert to numpy arrays
-    vec1 = np.array(embedding1)
-    vec2 = np.array(embedding2)
-    
-    # Calculate cosine similarity
-    dot_product = np.dot(vec1, vec2)
-    norm1 = np.linalg.norm(vec1)
-    norm2 = np.linalg.norm(vec2)
-    
-    return dot_product / (norm1 * norm2)
