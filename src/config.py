@@ -2,7 +2,7 @@ import os
 import json
 from pathlib import Path
 
-CONFIG_DIR = Path.home() / ".your_cli_tool"
+CONFIG_DIR = Path.home() / ".fastcmd"
 CONFIG_FILE = CONFIG_DIR / "config.json"
 
 def save_api_key(api_key):
