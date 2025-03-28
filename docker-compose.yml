@@ -2,10 +2,24 @@ version: '3.8'
 
 services:
   pytest:
-    image: python:3.10-slim
+    image: fastcmd-base
     volumes:
       - .:/app
     working_dir: /app
-    command: bash -c "python -m pip install --upgrade pip && pip install -e . && pip install -r requirements-dev.txt && pytest"
+    command: pytest
+    environment:
+      - PYTHONPATH=/app
+  
+  lint:
+    image: fastcmd-base
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: >
+      bash -c "
+        black src tests &&
+        isort src tests &&
+        flake8 src tests &&
+        mypy src tests"
     environment:
       - PYTHONPATH=/app
