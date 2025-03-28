@@ -1,11 +1,13 @@
-
-
-
-from utils import get_user_input, parse_command, print_instructions, set_openai_api_key_for_session
 from commands import COMMAND_FACTORY
+from utils import (
+    get_user_input,
+    parse_command,
+    print_instructions,
+    set_openai_api_key_for_session,
+)
 
 
-def main():
+def main() -> None:
     print_instructions()
     set_openai_api_key_for_session()
 
@@ -22,5 +24,5 @@ def main():
         func_command_runner = COMMAND_FACTORY[args.command]
         func_command_runner(args=args)
 
-        
+
 main()

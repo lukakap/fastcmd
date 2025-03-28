@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  pytest:
+    image: python:3.10-slim
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: bash -c "python -m pip install --upgrade pip && pip install -e . && pip install -r requirements-dev.txt && pytest"
+    environment:
+      - PYTHONPATH=/app
