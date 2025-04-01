@@ -1,6 +1,6 @@
 # FastCmd Makefile
 
-.PHONY: tests lint base-build update-requirements-dev update-requirements run
+.PHONY: tests lint base-build update-requirements-dev update-requirements run publish
 
 tests:
 	docker-compose run --rm pytest
@@ -21,4 +21,11 @@ update-requirements:
 
 run:
 	docker-compose run --rm app
+
+publish:
+	@echo "Building FastCmd Docker image..."
+	docker build -t lukakap/fastcmd:latest -f docker/Dockerfile.app .
+	@echo "Pushing FastCmd Docker image to Docker Hub..."
+	docker push lukakap/fastcmd:latest
+	@echo "Successfully published FastCmd Docker image!"
 	

@@ -23,5 +23,9 @@ COPY . .
 # Add the project root to PYTHONPATH
 ENV PYTHONPATH=/app
 
+# Add version label
+ARG VERSION
+LABEL version=$VERSION
+
 # Set default command
 CMD ["python", "src/fastcmd.py"] 
