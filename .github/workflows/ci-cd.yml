@@ -5,6 +5,10 @@ on:
     branches: [ main ]
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+      - '.github/**'
 
 jobs:
   ci:
@@ -39,6 +43,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version
+        id: get_version
+        run: |
+          # Get the latest tag
+          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          # Increment patch version
+          new_version=$(echo $latest_tag | awk -F. -v OFS=. '{$NF = $NF + 1;} 1')
+          echo "new_version=$new_version" >> $GITHUB_OUTPUT
+
+      - name: Create Git tag
+        run: |
+          git tag ${{ steps.get_version.outputs.new_version }}
+          git push origin ${{ steps.get_version.outputs.new_version }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -55,6 +75,10 @@ jobs:
           context: .
           file: docker/Dockerfile.app
           push: true
-          tags: lukakap/fastcmd:latest
+          tags: |
+            lukakap/fastcmd:latest
+            lukakap/fastcmd:${{ steps.get_version.outputs.new_version }}
+          build-args: |
+            VERSION=${{ steps.get_version.outputs.new_version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max 
