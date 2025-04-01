@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  pytest:
+    image: fastcmd-base
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: pytest
+    environment:
+      - PYTHONPATH=/app
+  
+  lint:
+    image: fastcmd-base
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: >
+      bash -c "
+        black src tests &&
+        isort src tests &&
+        flake8 src tests &&
+        mypy src tests"
+    environment:
+      - PYTHONPATH=/app
+
+  update-deps:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.update-deps
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: >
+      bash -c "
+        pip freeze > /app/requirements-dev.lock"
+
+  update-main-deps:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.update-main-deps
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: >
+      bash -c "
+        pip freeze > /app/requirements.lock"
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.app
+    image: fastcmd-app
+    volumes:
+      - .:/app
+    working_dir: /app
+    stdin_open: true
+    tty: true
+    environment:
+      - PYTHONPATH=/app

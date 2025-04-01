@@ -3,3 +3,23 @@ build/
 fastcmd_venv/
 openai.env
 fastcmd-commands.json
+
+__pycache__
+.pytest_cache
+venv
+test-api-key
+your_cli_tool
+fastcmd.egg-info
+venv-dev
+.vscode
+
+# Logs and DBs
+*.log
+*.sqlite3
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Test outputs
+.coverage
+htmlcov/

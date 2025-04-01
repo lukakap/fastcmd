@@ -1,18 +1,19 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(
-    name='fastcmd',
-    version='1.0.0',
+    name="fastcmd",
+    version="1.0.0",
     packages=find_packages(),
     install_requires=[
-        'openai==1.6.1',
-        'scikit-learn==1.3.2',
-        'numpy==1.26.2',
-        
+        "numpy",
+        "openai",
+        "scikit-learn",
+        "sqlite-vec",
     ],
     entry_points={
-        'console_scripts': [
-            'fastcmd=fastcmd:main',  # This allows the use of 'fastcmd' command
+        "console_scripts": [
+            "fastcmd=src.fastcmd:main",
         ],
     },
+    python_requires=">=3.8",
 )
