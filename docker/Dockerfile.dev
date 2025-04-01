@@ -1,24 +1,8 @@
-FROM python:3.11-slim
+FROM python:3.10-slim
 
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    && rm -rf /var/lib/apt/lists/*
+COPY requirements-dev.lock requirements-dev.lock
 
-# Copy requirements files
-COPY requirements-dev.lock .
-
-# Create and activate virtual environment
-RUN python -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-
-# Install dependencies from lock file
-RUN pip install --no-cache-dir -r requirements-dev.lock
-
-# Copy the rest of the application
-COPY . .
-
-# Set default command
-CMD ["/bin/bash"] 
+RUN python -m pip install --upgrade pip \
+    && pip install -r requirements-dev.lock

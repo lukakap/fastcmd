@@ -9,7 +9,7 @@ lint:
 	docker-compose run --rm lint
 
 base-build:
-	docker build -t fastcmd-base -f docker/Dockerfile .
+	docker build -t fastcmd-base -f docker/Dockerfile.dev .
 
 update-requirements-dev:
 	docker-compose build update-deps

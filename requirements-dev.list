@@ -1,5 +1,6 @@
 openai
 sqlite-vec
+pytest
 black
 isort
 flake8
