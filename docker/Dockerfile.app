@@ -20,5 +20,8 @@ RUN pip install --no-cache-dir -r requirements.lock
 # Copy the application
 COPY . .
 
+# Add the project root to PYTHONPATH
+ENV PYTHONPATH=/app
+
 # Set default command
 CMD ["python", "src/fastcmd.py"] 
