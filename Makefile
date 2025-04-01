@@ -1,6 +1,6 @@
 # FastCmd Makefile
 
-.PHONY: tests lint base-build update-requirements-dev
+.PHONY: tests lint base-build update-requirements-dev update-requirements run
 
 tests:
 	docker-compose run --rm pytest
@@ -14,3 +14,11 @@ base-build:
 update-requirements-dev:
 	docker-compose build update-deps
 	docker-compose run --rm update-deps
+
+update-requirements:
+	docker-compose build update-main-deps
+	docker-compose run --rm update-main-deps
+
+run:
+	docker-compose run --rm app
+	

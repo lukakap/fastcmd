@@ -6,9 +6,23 @@ This document describes how to set up and maintain the development environment f
 
 The project uses Docker for development to ensure consistency across different development machines. The development environment is containerized and includes all necessary tools and dependencies.
 
-## Development Dependencies
+## Docker Images
 
-The project uses a set of development dependencies defined in `requirements-dev.list` and locked in `requirements-dev.lock`. These include:
+The project uses several Docker images:
+
+- `fastcmd-base`: Base image for development tools (pytest, lint)
+- `fastcmd-app`: Application image for running the command-line tool
+- `fastcmd-update-deps`: Image for updating development dependencies
+- `fastcmd-update-main-deps`: Image for updating main dependencies
+
+Images are automatically built on first use and cached for subsequent runs. They are only rebuilt when their dependencies change.
+
+## Dependencies
+
+The project uses two sets of dependencies:
+
+### Development Dependencies
+Defined in `requirements-dev.list` and locked in `requirements-dev.lock`. These include:
 
 - `openai`: For OpenAI API integration
 - `sqlite-vec`: For vector database operations
@@ -17,17 +31,28 @@ The project uses a set of development dependencies defined in `requirements-dev.
 - `flake8`: Code linter
 - `mypy`: Type checker
 
+### Main Dependencies
+Defined in `requirements.list` and locked in `requirements.lock`. These are the core dependencies needed to run the application.
+
 ### Updating Dependencies
 
-To add or update a dependency:
+To add or update dependencies:
 
-1. Edit `requirements-dev.list` to add/update the package
-2. Run:
-   ```bash
-   make update-requirements-dev
-   ```
+1. For development dependencies:
+   - Edit `requirements-dev.list`
+   - Run:
+     ```bash
+     make update-requirements-dev
+     ```
 
-This will generate a new `requirements-dev.lock` with exact versions.
+2. For main dependencies:
+   - Edit `requirements.list`
+   - Run:
+     ```bash
+     make update-requirements
+     ```
+
+This will generate new lock files with exact versions.
 
 ## Development Commands
 
@@ -54,3 +79,21 @@ This will generate a new `requirements-dev.lock` with exact versions.
    ```
 
 This will run black, isort, flake8, and mypy checks.
+
+### Running the Application
+
+To run the application:
+
+```bash
+make run
+```
+
+This will:
+1. Build the `fastcmd-app` image with all main dependencies installed
+2. Run the application in interactive mode (with `stdin_open` and `tty` enabled)
+3. Allow you to input commands through the terminal
+
+The application runs in interactive mode because it's a command-line tool that needs to:
+- Accept user input through STDIN
+- Display formatted output through TTY
+- Handle terminal-specific features
