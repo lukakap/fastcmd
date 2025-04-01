@@ -29,10 +29,10 @@ if ! docker image inspect lukakap/fastcmd:latest > /dev/null 2>&1; then
     fi
 fi
 
-# Run the container with current directory mounted
+# Run the container with current directory mounted for data persistence
 docker run -it --rm \
-    -v "$PWD":/app \
-    -w /app \
+    -v "$PWD":/data \
+    -w /data \
     lukakap/fastcmd:latest "$@"
 EOL
 
