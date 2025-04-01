@@ -1,0 +1,60 @@
+name: CI/CD Pipeline
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build base image
+        run: docker build -t fastcmd-base -f docker/Dockerfile.dev .
+
+      - name: Run linting
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/app -w /app fastcmd-base bash -c "
+            black src tests &&
+            isort src tests &&
+            flake8 src tests &&
+            mypy src tests"
+
+      - name: Run tests
+        run: docker run --rm -v ${{ github.workspace }}:/app -w /app fastcmd-base pytest
+
+  cd:
+    name: CD
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile.app
+          push: true
+          tags: lukakap/fastcmd:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max 
