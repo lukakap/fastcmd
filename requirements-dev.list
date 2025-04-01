@@ -1,0 +1,6 @@
+openai
+sqlite-vec
+black
+isort
+flake8
+mypy

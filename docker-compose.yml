@@ -23,3 +23,14 @@ services:
         mypy src tests"
     environment:
       - PYTHONPATH=/app
+
+  update-deps:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.update-deps
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: >
+      bash -c "
+        pip freeze > /app/requirements-dev.lock"
