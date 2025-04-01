@@ -29,11 +29,8 @@ if ! docker image inspect lukakap/fastcmd:latest > /dev/null 2>&1; then
     fi
 fi
 
-# Run the container with current directory mounted for data persistence
-docker run -it --rm \
-    -v "$PWD":/data \
-    -w /data \
-    lukakap/fastcmd:latest "$@"
+# Run the container
+docker run -it --rm lukakap/fastcmd:latest "$@"
 EOL
 
 # Make the script executable
