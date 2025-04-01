@@ -36,4 +36,4 @@ EOL
 # Make the script executable
 chmod +x "$INSTALL_PATH"
 
-echo "FastCmd installed successfully! You can now use the 'fastcmd' command from anywhere."
+echo "FastCmd installed successfully! You can now use the 'fastcmd' command from anywhere..."
