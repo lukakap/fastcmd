@@ -99,7 +99,7 @@ def fastcmd_print(value: str, with_front_text: bool = True) -> None:
 
 
 def print_instructions() -> None:
-    fastcmd_print("Welcome to FastCmd!! Available commands:")
+    fastcmd_print("Welcome to FastCmd! Available commands:")
     fastcmd_print(
         "  add -c '<command>' -d '<description>'  : Add a new command with description",
         with_front_text=False,
