@@ -2,6 +2,7 @@ import os
 import sqlite3
 import struct
 from typing import List, Optional
+from pathlib import Path
 
 import sqlite_vec
 
@@ -12,8 +13,10 @@ TEST_DB_PATH = os.path.join(
     "commands-test.db",
 )
 
+# Get database path from environment or use default
 DEFAULT_DB_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "commands.db"
+    os.getenv("FASTCMD_DB_DIR", os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "commands.db"
 )
 
 

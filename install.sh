@@ -9,6 +9,15 @@ fi
 # Define the installation path
 INSTALL_PATH="/usr/local/bin/fastcmd"
 
+# Create config and db directories in user's home
+USER_HOME=$(eval echo ~$SUDO_USER)
+CONFIG_DIR="$USER_HOME/.fastcmd"
+DB_DIR="$CONFIG_DIR/db"
+mkdir -p "$CONFIG_DIR" "$DB_DIR"
+chown -R $SUDO_USER:$SUDO_USER "$CONFIG_DIR"
+chmod 700 "$CONFIG_DIR"
+chmod 700 "$DB_DIR"
+
 # Create the fastcmd script
 cat > "$INSTALL_PATH" << 'EOL'
 #!/bin/bash
@@ -18,6 +27,11 @@ if ! docker info > /dev/null 2>&1; then
     echo "Error: Docker is not running"
     exit 1
 fi
+
+# Get user's home directory
+USER_HOME=$(eval echo ~$USER)
+CONFIG_DIR="$USER_HOME/.fastcmd"
+DB_DIR="$CONFIG_DIR/db"
 
 # Function to check and update FastCmd
 check_and_update() {
@@ -56,8 +70,15 @@ if ! docker image inspect lukakap/fastcmd:latest > /dev/null 2>&1; then
     fi
 fi
 
-# Run the container
-docker run -it --rm lukakap/fastcmd:latest "$@"
+# Run the container with persistent volumes
+docker run -it --rm \
+    -v "$CONFIG_DIR:/root/.fastcmd" \
+    -v "$DB_DIR:/root/.fastcmd/db" \
+    -e FASTCMD_CONFIG_DIR=/root/.fastcmd \
+    -e FASTCMD_DB_DIR=/root/.fastcmd/db \
+    -e FASTCMD_HOME=/root \
+    -e HOME=/root \
+    lukakap/fastcmd:latest "$@"
 EOL
 
 # Make the script executable
@@ -65,3 +86,5 @@ chmod +x "$INSTALL_PATH"
 
 echo "FastCmd installed successfully! You can now use the 'fastcmd' command from anywhere."
 echo "FastCmd will automatically update when new versions are available."
+echo "Configuration will be stored in: $CONFIG_DIR"
+echo "Database will be stored in: $DB_DIR"
