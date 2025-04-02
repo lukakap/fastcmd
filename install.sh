@@ -21,14 +21,19 @@ fi
 
 # Function to check and update FastCmd
 check_and_update() {
-    local current_version=$(docker inspect lukakap/fastcmd:latest --format '{{.Config.Labels.version}}' 2>/dev/null || echo "none")
-    local latest_version=$(curl -s https://api.github.com/repos/lukakap/fastcmd/tags | grep -o '"name": "v[0-9.]*"' | head -1 | cut -d'"' -f4)
+    # Get the current image digest
+    local current_digest=$(docker inspect lukakap/fastcmd:latest --format '{{.Id}}' 2>/dev/null || echo "none")
     
-    if [ "$current_version" != "$latest_version" ]; then
-        echo "A new version of FastCmd is available: $latest_version"
-        echo "Current version: $current_version"
+    # Pull the latest image without running it
+    docker pull lukakap/fastcmd:latest > /dev/null 2>&1
+    
+    # Get the new image digest
+    local new_digest=$(docker inspect lukakap/fastcmd:latest --format '{{.Id}}' 2>/dev/null)
+    
+    # Compare digests to determine if an update is needed
+    if [ "$current_digest" != "$new_digest" ]; then
+        echo "A new version of FastCmd is available!"
         echo "Updating to the latest version..."
-        docker pull lukakap/fastcmd:latest
         if [ $? -eq 0 ]; then
             echo "FastCmd updated successfully!"
         else
