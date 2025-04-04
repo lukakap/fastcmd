@@ -53,8 +53,14 @@ services:
     image: fastcmd-app
     volumes:
       - .:/app
+      - ${HOME}/.fastcmd:/root/.fastcmd
+      - ${HOME}/.fastcmd/db:/root/.fastcmd/db
     working_dir: /app
     stdin_open: true
     tty: true
     environment:
       - PYTHONPATH=/app
+      - FASTCMD_CONFIG_DIR=/root/.fastcmd
+      - FASTCMD_DB_DIR=/root/.fastcmd/db
+      - FASTCMD_HOME=/root
+      - HOME=/root

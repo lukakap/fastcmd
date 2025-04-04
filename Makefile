@@ -1,6 +1,6 @@
 # FastCmd Makefile
 
-.PHONY: tests lint base-build update-requirements-dev update-requirements run publish
+.PHONY: tests lint base-build update-requirements-dev update-requirements run clean-config publish
 
 tests:
 	docker-compose run --rm pytest
@@ -19,8 +19,18 @@ update-requirements:
 	docker-compose build update-main-deps
 	docker-compose run --rm update-main-deps
 
+# Run using docker-compose (recommended for development)
 run:
+	@mkdir -p ${HOME}/.fastcmd/db
+	@chmod 700 ${HOME}/.fastcmd
+	@chmod 700 ${HOME}/.fastcmd/db
 	docker-compose run --rm app
+
+# Clean configuration and database
+clean-config:
+	@echo "Cleaning configuration and database..."
+	@rm -rf ${HOME}/.fastcmd
+	@echo "Configuration and database cleaned."
 
 publish:
 	@echo "Building FastCmd Docker image..."

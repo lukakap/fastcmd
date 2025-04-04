@@ -1,84 +1,73 @@
-# Development Setup
+# Development Guide
 
-This document describes how to set up and maintain the development environment for FastCmd.
+## Prerequisites
 
-## Development Environment
+- Docker
+- Docker Compose
+- Make
 
-The project uses Docker for development to ensure consistency across different development machines. The development environment is containerized and includes all necessary tools and dependencies.
+## Development Setup
 
-## Docker Images
+### Building the Base Image
 
-The project uses several Docker images:
+The base image contains all development dependencies. To build it:
 
-- `fastcmd-base`: Base image for development tools (pytest, lint)
-- `fastcmd-app`: Application image for running the command-line tool
-- `fastcmd-update-deps`: Image for updating development dependencies
-- `fastcmd-update-main-deps`: Image for updating main dependencies
-
-Images are automatically built on first use and cached for subsequent runs. They are only rebuilt when their dependencies change.
-
-## Dependencies
-
-The project uses two sets of dependencies:
-
-### Development Dependencies
-Defined in `requirements-dev.list` and locked in `requirements-dev.lock`. These include:
-
-- `openai`: For OpenAI API integration
-- `sqlite-vec`: For vector database operations
-- `black`: Code formatter
-- `isort`: Import sorter
-- `flake8`: Code linter
-- `mypy`: Type checker
-
-### Main Dependencies
-Defined in `requirements.list` and locked in `requirements.lock`. These are the core dependencies needed to run the application.
+```bash
+make base-build
+```
 
 ### Updating Dependencies
 
-To add or update dependencies:
+#### Development Dependencies
 
-1. For development dependencies:
-   - Edit `requirements-dev.list`
-   - Run:
-     ```bash
-     make update-requirements-dev
-     ```
+To update development dependencies:
 
-2. For main dependencies:
-   - Edit `requirements.list`
-   - Run:
-     ```bash
-     make update-requirements
-     ```
+```bash
+make update-requirements-dev
+```
 
-This will generate new lock files with exact versions.
+This will:
+1. Build the update-deps container
+2. Generate a new `requirements-dev.lock` file
 
-## Development Commands
+#### Main Dependencies
+
+To update main application dependencies:
+
+```bash
+make update-requirements
+```
+
+This will:
+1. Build the update-main-deps container
+2. Generate a new `requirements.lock` file
 
 ### Running Tests
 
-1. Build the base image:
-   ```bash
-   make base-build
-   ```
-2. Run tests:
-   ```bash
-   make tests
-   ```
+To run the test suite:
 
-### Running Lint
+```bash
+make tests
+```
 
-1. Build the base image:
-   ```bash
-   make base-build
-   ```
-2. Run linting:
-   ```bash
-   make lint
-   ```
+This will:
+1. Use the `fastcmd-base` image
+2. Run pytest with the test configuration
+3. Display test results
 
-This will run black, isort, flake8, and mypy checks.
+### Linting
+
+To run the linter:
+
+```bash
+make lint
+```
+
+This will:
+1. Run black for code formatting
+2. Run isort for import sorting
+3. Run flake8 for style checking
+4. Run mypy for type checking
 
 ### Running the Application
 
@@ -89,11 +78,44 @@ make run
 ```
 
 This will:
-1. Build the `fastcmd-app` image with all main dependencies installed
-2. Run the application in interactive mode (with `stdin_open` and `tty` enabled)
-3. Allow you to input commands through the terminal
+1. Create necessary configuration directories in your home folder (`~/.fastcmd` and `~/.fastcmd/db`)
+2. Set proper permissions for the directories
+3. Build the `fastcmd-app` image with all main dependencies installed
+4. Run the application in interactive mode (with `stdin_open` and `tty` enabled)
+5. Mount your local code directory for development
+6. Mount configuration and database directories for persistence
+7. Set all required environment variables
+8. Allow you to input commands through the terminal
 
 The application runs in interactive mode because it's a command-line tool that needs to:
 - Accept user input through STDIN
 - Display formatted output through TTY
 - Handle terminal-specific features
+
+### Cleaning Configuration
+
+If you need to start fresh or if you're experiencing issues with the configuration:
+
+```bash
+make clean-config
+```
+
+This will:
+1. Remove the `.fastcmd` directory from your home folder
+2. Delete all configuration files and database
+3. Allow you to start with a clean slate
+
+Note: This will remove your OpenAI API key and any saved commands, so use it carefully.
+
+### Publishing
+
+To publish a new version:
+
+```bash
+make publish
+```
+
+This will:
+1. Build the production image
+2. Tag it as `lukakap/fastcmd:latest`
+3. Push it to Docker Hub

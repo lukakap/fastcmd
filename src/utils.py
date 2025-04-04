@@ -48,6 +48,7 @@ def set_openai_api_key_for_session() -> None:
     if not api_key:
         raise ValueError("API key cannot be empty.")
     os.environ["OPENAI_API_KEY"] = api_key
+    save_api_key(api_key)
     fastcmd_print("OPENAI_API_KEY has been set to the config")
 
 

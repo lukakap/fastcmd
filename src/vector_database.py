@@ -24,10 +24,12 @@ DEFAULT_DB_PATH = os.path.join(
 
 def get_db_path() -> str:
     """
-    Returns the appropriate database path based on
-    whether we're in test mode or not.
+    Return TEST_DB_PATH if we're explicitly in test mode, else DEFAULT_DB_PATH.
     """
-    return TEST_DB_PATH if TEST_DB_PATH else DEFAULT_DB_PATH
+    if os.getenv("TESTING") == "1":
+        return TEST_DB_PATH
+    else:
+        return DEFAULT_DB_PATH
 
 
 # serialize embedding to bytes
