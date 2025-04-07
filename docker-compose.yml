@@ -55,6 +55,7 @@ services:
       - .:/app
       - ${HOME}/.fastcmd:/root/.fastcmd
       - ${HOME}/.fastcmd/db:/root/.fastcmd/db
+      - ${HOME}:/host_home
     working_dir: /app
     stdin_open: true
     tty: true
@@ -64,3 +65,5 @@ services:
       - FASTCMD_DB_DIR=/root/.fastcmd/db
       - FASTCMD_HOME=/root
       - HOME=/root
+      - HOST_HOME=/host_home
+      - USER_HOME=${HOME}

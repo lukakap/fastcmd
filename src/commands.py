@@ -1,9 +1,12 @@
+import json
 import subprocess
+import os
 from argparse import Namespace
+from pathlib import Path
 
 from src.embeddings import calculate_embedding
 from src.utils import fastcmd_print, get_user_input
-from src.vector_database import add_entry, fetch_similar, init_db
+from src.vector_database import add_entry, fetch_similar, init_db, fetch_all_commands
 
 
 def handle_add(args: Namespace) -> bool:
@@ -105,7 +108,66 @@ def handle_search(args: Namespace) -> bool:
         return False
 
 
+def handle_export(args: Namespace) -> bool:
+    """
+    Handle exporting all commands to a JSON file.
+    
+    Args:
+        args: Command line arguments containing optional output path
+        
+    Returns:
+        bool: True if export was successful, False otherwise
+    """
+    try:
+        # Initialize database if it doesn't exist
+        init_db()
+        
+        # Fetch all commands
+        commands = fetch_all_commands()
+        
+        if not commands:
+            fastcmd_print("❌ No commands found in the database.")
+            return False
+            
+        # Create the export data structure
+        export_data = {
+            "commands": commands
+        }
+        
+        # Convert to JSON with pretty printing
+        json_data = json.dumps(export_data, indent=2)
+        
+        # Print to console
+        fastcmd_print("Exported commands:")
+        print(json_data)
+        
+        if args.output:
+            output_path = Path(args.output)
+        else:
+            # Use host's home directory from environment variable
+            host_home = os.getenv('HOST_HOME')
+            if not host_home:
+                raise ValueError("Could not determine host home directory")
+            output_path = Path(host_home) / "fastcmd_commands.json"
+        
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(output_path, "w") as f:
+            f.write(json_data)
+            
+        user_home = os.getenv('USER_HOME')
+        if not user_home:
+            user_home = os.getenv('HOME')
+        display_path = f"{user_home}/fastcmd_commands.json"
+        fastcmd_print(f"✅ Commands exported to: {display_path}")
+        return True
+    except Exception as e:
+        fastcmd_print(f"❌ Error exporting commands: {str(e)}")
+        return False
+
+
 COMMAND_FACTORY = {
     "add": handle_add,
     "search": handle_search,
+    "export": handle_export,
 }

@@ -26,7 +26,6 @@ run:
 	@chmod 700 ${HOME}/.fastcmd/db
 	docker-compose run --rm app
 
-# Clean configuration and database
 clean-config:
 	@echo "Cleaning configuration and database..."
 	@rm -rf ${HOME}/.fastcmd

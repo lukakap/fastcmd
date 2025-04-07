@@ -123,3 +123,32 @@ def fetch_similar(
         {"command": row[0], "description": row[1], "distance": row[2]}
         for row in results
     ]
+
+
+def fetch_all_commands(db_path: Optional[str] = None) -> list:
+    """
+    Fetch all commands from the database.
+    
+    Args:
+        db_path: Optional path to the database file
+        
+    Returns:
+        list: List of dictionaries containing command and description
+    """
+    db_path = db_path or get_db_path()
+    conn = sqlite3.connect(db_path)
+    
+    results = conn.execute(
+        """
+        SELECT command, description
+        FROM commands
+        ORDER BY id ASC;
+    """
+    ).fetchall()
+    
+    conn.close()
+    
+    return [
+        {"command": row[0], "description": row[1]}
+        for row in results
+    ]
