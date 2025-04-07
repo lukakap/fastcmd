@@ -33,7 +33,12 @@ def test_add_entry(temp_db: str) -> None:
 def test_fetch_similar(temp_db: str) -> None:
     """Test fetching similar entries from the database."""
     add_entry(embedding1, "ls -la", "List all files", db_path=temp_db)
-    add_entry(embedding2, "git status", "Check git repository status", db_path=temp_db)
+    add_entry(
+        embedding2,
+        "git status",
+        "Check git repository status",
+        db_path=temp_db,
+    )
 
     results = fetch_similar(query_embedding, top_k=2, db_path=temp_db)
 

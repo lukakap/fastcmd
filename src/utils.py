@@ -83,10 +83,16 @@ def parse_command(user_input: str) -> Namespace:
         "--set-api-key", type=str, metavar="API_KEY", help=argparse.SUPPRESS
     )
 
-    parser_export = subparsers.add_parser("export", help="Export all commands to JSON format")
+    parser_export = subparsers.add_parser(
+        "export", help="Export all commands to JSON format"
+    )
     parser_export.add_argument(
-        "-o", "--output", 
-        help="Path to save the exported JSON file. If not specified, saves to Desktop with timestamp."
+        "-o",
+        "--output",
+        help=(
+            "Path to save the exported JSON file. "
+            "If not specified, saves to Desktop with timestamp."
+        ),
     )
     parser_export.add_argument(
         "--set-api-key", type=str, metavar="API_KEY", help=argparse.SUPPRESS
