@@ -1,3 +1,4 @@
+import json
 import os
 import tempfile
 from argparse import Namespace
@@ -6,7 +7,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.commands import handle_add, handle_search
+from src.commands import (
+    handle_add,
+    handle_export,
+    handle_import,
+    handle_search,
+)
 
 
 class TestAddCommand:
@@ -229,3 +235,88 @@ class TestSearchCommand:
         # Assert
         assert "Command failed with error" in mock_print.call_args[0][0]
         assert result is False
+
+
+class TestExportImportCommands:
+    def test_export_command_success(self, tmp_path, monkeypatch):
+        # Arrange
+        args_add = Namespace(description="List files", commandrun="ls -l")
+        handle_add(args_add)
+        export_path = tmp_path / "exported.json"
+        args_export = Namespace(output=str(export_path))
+        # Act
+        with monkeypatch.context() as m:
+            m.setenv("HOST_HOME", str(tmp_path))
+            m.setenv("USER_HOME", str(tmp_path))
+            with patch("src.commands.fastcmd_print") as mock_print:
+                result = handle_export(args_export)
+        # Assert
+        assert result is True
+        assert export_path.exists()
+        with open(export_path) as f:
+            data = f.read()
+            assert "List files" in data
+        assert any(
+            "exported" in str(call[0][0]) for call in mock_print.call_args_list
+        )
+
+    def test_export_command_empty_db(self, tmp_path, monkeypatch):
+        # Arrange
+        args_export = Namespace(output=str(tmp_path / "exported.json"))
+        # Act
+        with monkeypatch.context() as m:
+            m.setenv("HOST_HOME", str(tmp_path))
+            m.setenv("USER_HOME", str(tmp_path))
+            with patch("src.commands.fetch_all_commands", return_value=[]):
+                with patch("src.commands.fastcmd_print") as mock_print:
+                    result = handle_export(args_export)
+        # Assert
+        assert result is False
+        assert any(
+            "No commands found" in str(call[0][0])
+            for call in mock_print.call_args_list
+        )
+
+    def test_import_command_success(self, tmp_path, monkeypatch):
+        # Arrange
+        import_path = tmp_path / "import.json"
+        commands_data = {
+            "commands": [
+                {"description": "Echo hello", "command": "echo hello"}
+            ]
+        }
+        with open(import_path, "w") as f:
+            json.dump(commands_data, f)
+        args_import = Namespace(input=str(import_path))
+        # Act
+        with monkeypatch.context() as m:
+            m.setenv("HOST_HOME", str(tmp_path))
+            m.setenv("USER_HOME", str(tmp_path))
+            with patch(
+                "src.commands.calculate_embedding", return_value=[0.1] * 1536
+            ):
+                with patch("src.commands.fastcmd_print") as mock_print:
+                    result = handle_import(args_import)
+        # Assert
+        assert result is True
+        assert any(
+            "Imported 1 commands" in str(call[0][0])
+            for call in mock_print.call_args_list
+        )
+
+    def test_import_command_file_not_found(self, tmp_path, monkeypatch):
+        # Arrange
+        missing_path = tmp_path / "missing.json"
+        args_import = Namespace(input=str(missing_path))
+        # Act
+        with monkeypatch.context() as m:
+            m.setenv("HOST_HOME", str(tmp_path))
+            m.setenv("USER_HOME", str(tmp_path))
+            with patch("src.commands.fastcmd_print") as mock_print:
+                result = handle_import(args_import)
+        # Assert
+        assert result is False
+        assert any(
+            "File not found" in str(call[0][0])
+            for call in mock_print.call_args_list
+        )

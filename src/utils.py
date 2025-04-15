@@ -98,6 +98,17 @@ def parse_command(user_input: str) -> Namespace:
         "--set-api-key", type=str, metavar="API_KEY", help=argparse.SUPPRESS
     )
 
+    # Subparser for 'import' command
+    parser_import = subparsers.add_parser(
+        "import", help="Import commands from a JSON file"
+    )
+    parser_import.add_argument(
+        "-i", "--input", required=True, help="Path to the JSON file to import"
+    )
+    parser_import.add_argument(
+        "--set-api-key", type=str, metavar="API_KEY", help=argparse.SUPPRESS
+    )
+
     return parser.parse_args(shlex.split(user_input))
 
 
@@ -138,6 +149,14 @@ def print_instructions() -> None:
     )
     fastcmd_print(
         "    Note: If output path is not specified, saves to ~/fastcmd_commands.json",
+        with_front_text=False,
+    )
+    fastcmd_print(
+        "  import -i <input_path>                : Import commands from a JSON file",
+        with_front_text=False,
+    )
+    fastcmd_print(
+        "    Note: The file must be in the same format as exported by 'export'",
         with_front_text=False,
     )
     fastcmd_print(
