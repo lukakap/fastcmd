@@ -2,7 +2,8 @@ import json
 import os
 import tempfile
 from argparse import Namespace
-from typing import Generator
+from pathlib import Path
+from typing import Any, Generator
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -238,7 +239,9 @@ class TestSearchCommand:
 
 
 class TestExportImportCommands:
-    def test_export_command_success(self, tmp_path, monkeypatch):
+    def test_export_command_success(
+        self, tmp_path: Path, monkeypatch: Any
+    ) -> None:
         # Arrange
         args_add = Namespace(description="List files", commandrun="ls -l")
         handle_add(args_add)
@@ -260,7 +263,9 @@ class TestExportImportCommands:
             "exported" in str(call[0][0]) for call in mock_print.call_args_list
         )
 
-    def test_export_command_empty_db(self, tmp_path, monkeypatch):
+    def test_export_command_empty_db(
+        self, tmp_path: Path, monkeypatch: Any
+    ) -> None:
         # Arrange
         args_export = Namespace(output=str(tmp_path / "exported.json"))
         # Act
@@ -277,7 +282,9 @@ class TestExportImportCommands:
             for call in mock_print.call_args_list
         )
 
-    def test_import_command_success(self, tmp_path, monkeypatch):
+    def test_import_command_success(
+        self, tmp_path: Path, monkeypatch: Any
+    ) -> None:
         # Arrange
         import_path = tmp_path / "import.json"
         commands_data = {
@@ -304,7 +311,9 @@ class TestExportImportCommands:
             for call in mock_print.call_args_list
         )
 
-    def test_import_command_file_not_found(self, tmp_path, monkeypatch):
+    def test_import_command_file_not_found(
+        self, tmp_path: Path, monkeypatch: Any
+    ) -> None:
         # Arrange
         missing_path = tmp_path / "missing.json"
         args_import = Namespace(input=str(missing_path))
