@@ -56,37 +56,32 @@ def handle_search(args: Namespace) -> bool:
     try:
         query_embedding = calculate_embedding(args.description)
 
-        # Find similar commands (default top_k=3)
+        # Fetch only the most similar command (top_k=1)
         results = fetch_similar(query_embedding, top_k=1)
 
         if not results:
             fastcmd_print("❌ No matching commands found.")
             return False
 
-        fastcmd_print(f"Found {len(results)} matching commands:")
-        for i, result in enumerate(results):
-            distance_percent = int((1 - result["distance"]) * 100)
-            fastcmd_print(
-                f"{i+1}. [{distance_percent}% match] {result['description']}"
-            )
-            fastcmd_print(f"   Command: {result['command']}")
-
-        # Ask user if they want to execute a command
+        # Only show the most similar command
+        result = results[0]
+        distance_percent = int((1 - result["distance"]) * 100)
         fastcmd_print(
-            "Enter the number of the command to execute, or press Enter to cancel:"
+            f"[{distance_percent}% match] {result['description']}"
+        )
+        fastcmd_print(f"Command: {result['command']}")
+
+        # Ask user if they want to execute the command
+        fastcmd_print(
+            "Press 'y' to execute this command, or any other key to cancel:"
         )
         choice = get_user_input()
 
-        if (
-            not choice
-            or not choice.isdigit()
-            or int(choice) < 1
-            or int(choice) > len(results)
-        ):
+        if not choice or choice.lower() != 'y':
             fastcmd_print("Operation cancelled.")
             return False
 
-        selected_command = results[int(choice) - 1]["command"]
+        selected_command = result["command"]
         fastcmd_print(f"Executing: {selected_command}")
 
         # Execute the selected command
@@ -95,13 +90,11 @@ def handle_search(args: Namespace) -> bool:
                 selected_command, shell=True, capture_output=True, text=True
             )
             if result.returncode == 0:
-                # If command was successful
                 fastcmd_print("Command executed successfully")
                 if result.stdout.strip():
                     print(result.stdout)
                 return True
             else:
-                # If command failed
                 fastcmd_print(f"Command failed with error: {result.stderr}")
                 return False
         except Exception as e:
