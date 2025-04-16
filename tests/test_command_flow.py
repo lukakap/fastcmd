@@ -73,8 +73,8 @@ class TestCommandFlow:
             "src.commands.calculate_embedding", return_value=mock_embedding2
         ):
             with patch(
-                "src.commands.get_user_input", return_value="1"
-            ):  # Select the first result
+                "src.commands.get_user_input", return_value="y"
+            ):  # User confirms execution with 'y'
                 with patch(
                     "subprocess.run", return_value=mock_process
                 ) as mock_run:

@@ -69,11 +69,11 @@ def handle_search(args: Namespace) -> bool:
         fastcmd_print(
             f"[{distance_percent}% match] {result['description']}"
         )
-        fastcmd_print(f"Command: {result['command']}")
+        print(f"\tCommand: {result['command']}")
 
         # Ask user if they want to execute the command
-        fastcmd_print(
-            "Press 'y' to execute this command, or any other key to cancel:"
+        print(
+            "\tPress 'y' to execute this command, or any other key to cancel:"
         )
         choice = get_user_input()
 

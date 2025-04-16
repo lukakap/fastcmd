@@ -187,7 +187,7 @@ class TestSearchCommand:
             ):
                 with patch("src.commands.fastcmd_print"):
                     with patch(
-                        "src.commands.get_user_input", return_value="1"
+                        "src.commands.get_user_input", return_value="y"
                     ):
                         with patch(
                             "subprocess.run", return_value=mock_process
@@ -226,7 +226,7 @@ class TestSearchCommand:
             ):
                 with patch("src.commands.fastcmd_print") as mock_print:
                     with patch(
-                        "src.commands.get_user_input", return_value="1"
+                        "src.commands.get_user_input", return_value="y"
                     ):
                         with patch(
                             "subprocess.run", return_value=mock_process
