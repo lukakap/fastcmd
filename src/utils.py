@@ -83,6 +83,32 @@ def parse_command(user_input: str) -> Namespace:
         "--set-api-key", type=str, metavar="API_KEY", help=argparse.SUPPRESS
     )
 
+    parser_export = subparsers.add_parser(
+        "export", help="Export all commands to JSON format"
+    )
+    parser_export.add_argument(
+        "-o",
+        "--output",
+        help=(
+            "Path to save the exported JSON file. "
+            "If not specified, saves to Desktop with timestamp."
+        ),
+    )
+    parser_export.add_argument(
+        "--set-api-key", type=str, metavar="API_KEY", help=argparse.SUPPRESS
+    )
+
+    # Subparser for 'import' command
+    parser_import = subparsers.add_parser(
+        "import", help="Import commands from a JSON file"
+    )
+    parser_import.add_argument(
+        "-i", "--input", required=True, help="Path to the JSON file to import"
+    )
+    parser_import.add_argument(
+        "--set-api-key", type=str, metavar="API_KEY", help=argparse.SUPPRESS
+    )
+
     return parser.parse_args(shlex.split(user_input))
 
 
@@ -106,7 +132,31 @@ def print_instructions() -> None:
         with_front_text=False,
     )
     fastcmd_print(
+        "    Note: Use quotes around command and description if they contain spaces",
+        with_front_text=False,
+    )
+    fastcmd_print(
         "  search -d '<description>'             : Search for a command by description",
+        with_front_text=False,
+    )
+    fastcmd_print(
+        "    Note: Use quotes around description if it contains spaces",
+        with_front_text=False,
+    )
+    fastcmd_print(
+        "  export [-o <output_path>]             : Export all commands to JSON format",
+        with_front_text=False,
+    )
+    fastcmd_print(
+        "    Note: If output path is not specified, saves to ~/fastcmd_commands.json",
+        with_front_text=False,
+    )
+    fastcmd_print(
+        "  import -i <input_path>                : Import commands from a JSON file",
+        with_front_text=False,
+    )
+    fastcmd_print(
+        "    Note: The file must be in the same format as exported by 'export'",
         with_front_text=False,
     )
     fastcmd_print(
