@@ -2,7 +2,7 @@ import os
 import tempfile
 from argparse import Namespace
 from typing import Generator
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -58,30 +58,30 @@ class TestCommandFlow:
         ):
             result_add = handle_add(add_args)
 
-        # Verify command was added successfully
         assert result_add is True
 
         # 2. Then search for a similar command
         search_args = Namespace(description="Show files with colors")
 
-        # Mock process for command execution
-        mock_process = MagicMock()
-        mock_process.returncode = 0
-        mock_process.stdout = "file1.txt  file2.txt\n"
+        mock_results = [
+            {
+                "command": "ls --color=auto",
+                "description": "List files in color format",
+                "distance": 0.05,
+            }
+        ]
 
         with patch(
             "src.commands.calculate_embedding", return_value=mock_embedding2
         ):
             with patch(
-                "src.commands.get_user_input", return_value="y"
-            ):  # User confirms execution with 'y'
+                "src.commands.fetch_similar", return_value=mock_results
+            ):
+                # Patch print_command_match in src.commands, not src.utils
                 with patch(
-                    "subprocess.run", return_value=mock_process
-                ) as mock_run:
+                    "src.commands.print_command_match"
+                ) as mock_print_match:
                     result_search = handle_search(search_args)
 
-        # Verify search and execution were successful
         assert result_search is True
-        mock_run.assert_called_once_with(
-            "ls --color=auto", shell=True, capture_output=True, text=True
-        )
+        mock_print_match.assert_called_once()

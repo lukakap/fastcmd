@@ -118,49 +118,66 @@ def check_if_api_key_has_changed(args: Namespace) -> None:
         os.environ["OPENAI_API_KEY"] = args.set_api_key
 
 
-def fastcmd_print(value: str, with_front_text: bool = True) -> None:
+def fastcmd_print(
+    value: str, with_front_text: bool = True, with_front_space: bool = True
+) -> None:
     if with_front_text:
         print(f"fastcmd> {value}")
-    else:
+    elif with_front_space:
         print(f"         {value}")
+    else:
+        print(value)
 
 
 def print_instructions() -> None:
-    fastcmd_print("Welcome to FastCmd! Available commands:")
+    fastcmd_print("\nWelcome to FastCmd!", with_front_text=False)
+    fastcmd_print("\nAvailable commands:\n", with_front_text=False)
+
+    commands = [
+        (
+            "add -c <command> -d <description>",
+            "Add a new command with a description",
+        ),
+        ("search -d <description>", "Search saved commands by description"),
+        (
+            "export [-o <output_path>]",
+            "Export all commands to a JSON file (default path if not provided)",
+        ),
+        ("import -i <input_path>", "Import commands from a JSON file"),
+        ("exit / quit", "Exit the FastCmd application"),
+    ]
+
+    for cmd, desc in commands:
+        fastcmd_print(f"  {cmd:<35} {desc}", with_front_text=False)
+
+    fastcmd_print("\nNotes:", with_front_text=False)
     fastcmd_print(
-        "  add -c '<command>' -d '<description>'  : Add a new command with description",
+        "  - Use quotes around <command> and <description> if they contain spaces",
         with_front_text=False,
     )
     fastcmd_print(
-        "    Note: Use quotes around command and description if they contain spaces",
-        with_front_text=False,
-    )
-    fastcmd_print(
-        "  search -d '<description>'             : Search for a command by description",
-        with_front_text=False,
-    )
-    fastcmd_print(
-        "    Note: Use quotes around description if it contains spaces",
-        with_front_text=False,
-    )
-    fastcmd_print(
-        "  export [-o <output_path>]             : Export all commands to JSON format",
-        with_front_text=False,
-    )
-    fastcmd_print(
-        "    Note: If output path is not specified, saves to ~/fastcmd_commands.json",
-        with_front_text=False,
-    )
-    fastcmd_print(
-        "  import -i <input_path>                : Import commands from a JSON file",
-        with_front_text=False,
-    )
-    fastcmd_print(
-        "    Note: The file must be in the same format as exported by 'export'",
-        with_front_text=False,
-    )
-    fastcmd_print(
-        "  exit/quit                             : Exit the application",
+        "  - The JSON file used in export/import must follow FastCmd format",
         with_front_text=False,
     )
     fastcmd_print("", with_front_text=False)
+
+
+def print_command_match(result: dict, distance_percent: int) -> None:
+    fastcmd_print(f"\n🎯 [{distance_percent}% match]", with_front_text=False)
+
+    fastcmd_print(
+        f"\n🔹 Command: {result['command']}",
+        with_front_text=False,
+        with_front_space=False,
+    )
+    fastcmd_print(
+        f"📝 Description : {result['description']}\n",
+        with_front_text=False,
+        with_front_space=False,
+    )
+
+    # fastcmd_print(
+    #     f"\n▶ You can copy the command and use it\n",
+    #     with_front_text=False,
+    #     with_front_space=False
+    # )

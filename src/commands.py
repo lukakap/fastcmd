@@ -1,11 +1,10 @@
 import json
 import os
-import subprocess
 from argparse import Namespace
 from pathlib import Path
 
 from src.embeddings import calculate_embedding
-from src.utils import fastcmd_print, get_user_input
+from src.utils import fastcmd_print, print_command_match
 from src.vector_database import (
     add_entry,
     fetch_all_commands,
@@ -66,40 +65,10 @@ def handle_search(args: Namespace) -> bool:
         # Only show the most similar command
         result = results[0]
         distance_percent = int((1 - result["distance"]) * 100)
-        fastcmd_print(
-            f"[{distance_percent}% match] {result['description']}"
-        )
-        print(f"\tCommand: {result['command']}")
 
-        # Ask user if they want to execute the command
-        print(
-            "\tPress 'y' to execute this command, or any other key to cancel:"
-        )
-        choice = get_user_input()
+        print_command_match(result, distance_percent)
 
-        if not choice or choice.lower() != 'y':
-            fastcmd_print("Operation cancelled.")
-            return False
-
-        selected_command = result["command"]
-        fastcmd_print(f"Executing: {selected_command}")
-
-        # Execute the selected command
-        try:
-            result = subprocess.run(
-                selected_command, shell=True, capture_output=True, text=True
-            )
-            if result.returncode == 0:
-                fastcmd_print("Command executed successfully")
-                if result.stdout.strip():
-                    print(result.stdout)
-                return True
-            else:
-                fastcmd_print(f"Command failed with error: {result.stderr}")
-                return False
-        except Exception as e:
-            fastcmd_print(f"Error executing command: {str(e)}")
-            return False
+        return True
 
     except Exception as e:
         fastcmd_print(f"❌ Error searching for command: {str(e)}")

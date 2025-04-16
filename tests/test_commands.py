@@ -4,7 +4,7 @@ import tempfile
 from argparse import Namespace
 from pathlib import Path
 from typing import Any, Generator
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -129,7 +129,7 @@ class TestSearchCommand:
         assert "No matching commands found" in mock_print.call_args[0][0]
         assert result is False
 
-    def test_search_command_found_but_canceled(
+    def test_search_command_found_and_prints_match(
         self, temp_db_path: str
     ) -> None:
         # Arrange
@@ -150,92 +150,17 @@ class TestSearchCommand:
             with patch(
                 "src.commands.fetch_similar", return_value=mock_results
             ) as mock_fetch:
-                with patch("src.commands.fastcmd_print") as mock_print:
-                    with patch("src.commands.get_user_input", return_value=""):
-                        result = handle_search(args)
+                # Patch print_command_match in src.commands, not src.utils
+                with patch(
+                    "src.commands.print_command_match"
+                ) as mock_print_match:
+                    result = handle_search(args)
 
         # Assert
         mock_calc_embedding.assert_called_once()
         mock_fetch.assert_called_once_with(mock_embedding, top_k=1)
-        assert mock_print.call_count >= 3  # Multiple print calls
-        assert "Operation cancelled" in mock_print.call_args[0][0]
-        assert result is False
-
-    def test_search_command_execute_success(self, temp_db_path: str) -> None:
-        # Arrange
-        args = Namespace(description="Find existing command")
-        mock_embedding = [0.1] * 1536
-        mock_results = [
-            {
-                "command": "echo hello",
-                "description": "Print hello",
-                "distance": 0.1,
-            }
-        ]
-
-        # Mock successful command execution
-        mock_process = MagicMock()
-        mock_process.returncode = 0
-        mock_process.stdout = "hello\n"
-
-        # Act
-        with patch(
-            "src.commands.calculate_embedding", return_value=mock_embedding
-        ):
-            with patch(
-                "src.commands.fetch_similar", return_value=mock_results
-            ):
-                with patch("src.commands.fastcmd_print"):
-                    with patch(
-                        "src.commands.get_user_input", return_value="y"
-                    ):
-                        with patch(
-                            "subprocess.run", return_value=mock_process
-                        ) as mock_run:
-                            result = handle_search(args)
-
-        # Assert
-        mock_run.assert_called_once_with(
-            "echo hello", shell=True, capture_output=True, text=True
-        )
+        mock_print_match.assert_called_once()
         assert result is True
-
-    def test_search_command_execution_failure(self, temp_db_path: str) -> None:
-        # Arrange
-        args = Namespace(description="Find existing command")
-        mock_embedding = [0.1] * 1536
-        mock_results = [
-            {
-                "command": "invalid_command",
-                "description": "Invalid command",
-                "distance": 0.1,
-            }
-        ]
-
-        # Mock failed command execution
-        mock_process = MagicMock()
-        mock_process.returncode = 1
-        mock_process.stderr = "command not found"
-
-        # Act
-        with patch(
-            "src.commands.calculate_embedding", return_value=mock_embedding
-        ):
-            with patch(
-                "src.commands.fetch_similar", return_value=mock_results
-            ):
-                with patch("src.commands.fastcmd_print") as mock_print:
-                    with patch(
-                        "src.commands.get_user_input", return_value="y"
-                    ):
-                        with patch(
-                            "subprocess.run", return_value=mock_process
-                        ):
-                            result = handle_search(args)
-
-        # Assert
-        assert "Command failed with error" in mock_print.call_args[0][0]
-        assert result is False
 
 
 class TestExportImportCommands:
