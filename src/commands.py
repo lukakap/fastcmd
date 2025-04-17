@@ -1,11 +1,10 @@
 import json
 import os
-import subprocess
 from argparse import Namespace
 from pathlib import Path
 
 from src.embeddings import calculate_embedding
-from src.utils import fastcmd_print, get_user_input
+from src.utils import fastcmd_print, print_command_match
 from src.vector_database import (
     add_entry,
     fetch_all_commands,
@@ -36,10 +35,18 @@ def handle_add(args: Namespace) -> bool:
             description=args.description,
         )
 
-        fastcmd_print(f"✅ Command '{args.description}' added successfully.")
+        fastcmd_print(
+            f"✅ Command '{args.description}' added successfully.",
+            with_front_space=False,
+            with_front_text=False,
+        )
         return True
     except Exception as e:
-        fastcmd_print(f"❌ Error adding command: {str(e)}")
+        fastcmd_print(
+            f"❌ Error adding command: {str(e)}",
+            with_front_space=False,
+            with_front_text=False,
+        )
         return False
 
 
@@ -56,60 +63,31 @@ def handle_search(args: Namespace) -> bool:
     try:
         query_embedding = calculate_embedding(args.description)
 
-        # Find similar commands (default top_k=3)
+        # Fetch only the most similar command (top_k=1)
         results = fetch_similar(query_embedding, top_k=1)
 
         if not results:
-            fastcmd_print("❌ No matching commands found.")
-            return False
-
-        fastcmd_print(f"Found {len(results)} matching commands:")
-        for i, result in enumerate(results):
-            distance_percent = int((1 - result["distance"]) * 100)
             fastcmd_print(
-                f"{i+1}. [{distance_percent}% match] {result['description']}"
+                "❌ No matching commands found.",
+                with_front_space=False,
+                with_front_text=False,
             )
-            fastcmd_print(f"   Command: {result['command']}")
-
-        # Ask user if they want to execute a command
-        fastcmd_print(
-            "Enter the number of the command to execute, or press Enter to cancel:"
-        )
-        choice = get_user_input()
-
-        if (
-            not choice
-            or not choice.isdigit()
-            or int(choice) < 1
-            or int(choice) > len(results)
-        ):
-            fastcmd_print("Operation cancelled.")
             return False
 
-        selected_command = results[int(choice) - 1]["command"]
-        fastcmd_print(f"Executing: {selected_command}")
+        # Only show the most similar command
+        result = results[0]
+        distance_percent = int((1 - result["distance"]) * 100)
 
-        # Execute the selected command
-        try:
-            result = subprocess.run(
-                selected_command, shell=True, capture_output=True, text=True
-            )
-            if result.returncode == 0:
-                # If command was successful
-                fastcmd_print("Command executed successfully")
-                if result.stdout.strip():
-                    print(result.stdout)
-                return True
-            else:
-                # If command failed
-                fastcmd_print(f"Command failed with error: {result.stderr}")
-                return False
-        except Exception as e:
-            fastcmd_print(f"Error executing command: {str(e)}")
-            return False
+        print_command_match(result, distance_percent)
+
+        return True
 
     except Exception as e:
-        fastcmd_print(f"❌ Error searching for command: {str(e)}")
+        fastcmd_print(
+            f"❌ Error searching for command: {str(e)}",
+            with_front_space=False,
+            with_front_text=False,
+        )
         return False
 
 
@@ -131,7 +109,11 @@ def handle_export(args: Namespace) -> bool:
         commands = fetch_all_commands()
 
         if not commands:
-            fastcmd_print("❌ No commands found in the database.")
+            fastcmd_print(
+                "❌ No commands found in the database.\n",
+                with_front_space=False,
+                with_front_text=False,
+            )
             return False
 
         # Create the export data structure
@@ -141,8 +123,12 @@ def handle_export(args: Namespace) -> bool:
         json_data = json.dumps(export_data, indent=2)
 
         # Print to console
-        fastcmd_print("Exported commands:")
-        print(json_data)
+        fastcmd_print(
+            "\nExported commands:",
+            with_front_space=False,
+            with_front_text=False,
+        )
+        print(f"{json_data}\n")
 
         if args.output:
             output_path = Path(args.output)
@@ -162,10 +148,18 @@ def handle_export(args: Namespace) -> bool:
         if not user_home:
             user_home = os.getenv("HOME")
         display_path = f"{user_home}/fastcmd_commands.json"
-        fastcmd_print(f"✅ Commands exported to: {display_path}")
+        fastcmd_print(
+            f"✅ Commands exported to: {display_path}\n",
+            with_front_space=False,
+            with_front_text=False,
+        )
         return True
     except Exception as e:
-        fastcmd_print(f"❌ Error exporting commands: {str(e)}")
+        fastcmd_print(
+            f"❌ Error exporting commands: {str(e)}\n",
+            with_front_space=False,
+            with_front_text=False,
+        )
         return False
 
 
@@ -182,7 +176,9 @@ def handle_import(args: Namespace) -> bool:
     try:
         if not args.input:
             fastcmd_print(
-                "❌ Please provide the path to the JSON file with --input"
+                "❌ Please provide the path to the JSON file with --input",
+                with_front_space=False,
+                with_front_text=False,
             )
             return False
 
@@ -199,7 +195,11 @@ def handle_import(args: Namespace) -> bool:
 
         input_path = Path(container_input_path)
         if not input_path.exists():
-            fastcmd_print(f"❌ File not found: {input_path}")
+            fastcmd_print(
+                f"❌ File not found: {input_path}",
+                with_front_space=False,
+                with_front_text=False,
+            )
             return False
 
         with open(input_path, "r") as f:
@@ -207,7 +207,11 @@ def handle_import(args: Namespace) -> bool:
 
         commands = data.get("commands", [])
         if not commands:
-            fastcmd_print("❌ No commands found in the import file.")
+            fastcmd_print(
+                "❌ No commands found in the import file.",
+                with_front_space=False,
+                with_front_text=False,
+            )
             return False
 
         init_db()
@@ -223,14 +227,24 @@ def handle_import(args: Namespace) -> bool:
                 )
                 imported_count += 1
             else:
-                fastcmd_print(f"⚠️ Skipping invalid entry: {cmd}")
+                fastcmd_print(
+                    f"⚠️ Skipping invalid entry: {cmd}",
+                    with_front_space=False,
+                    with_front_text=False,
+                )
 
         fastcmd_print(
-            f"✅ Imported {imported_count} commands from {input_path}"
+            f"\n✅ Imported {imported_count} commands from {input_path}\n",
+            with_front_space=False,
+            with_front_text=False,
         )
         return True
     except Exception as e:
-        fastcmd_print(f"❌ Error importing commands: {str(e)}")
+        fastcmd_print(
+            f"❌ Error importing commands: {str(e)}",
+            with_front_space=False,
+            with_front_text=False,
+        )
         return False
 
 
